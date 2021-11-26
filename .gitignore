@@ -23,6 +23,8 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+*.whl
+*.tar.bz2
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -79,6 +81,7 @@ celerybeat-schedule
 .env
 
 # virtualenv
+*.venv/
 venv/
 ENV/
 
