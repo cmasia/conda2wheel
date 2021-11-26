@@ -67,7 +67,7 @@ def copy_toplevels(egg, egg_dir):
             shutil.copytree(src, dest)
 
 
-def copy_to_condadir(condadir, condafile, wheel_dir, tmp_dir):
+def copy_to_condadir(condadir, condafile, wheel_dir, tmp_dir, platform):
     extract(condafile, condadir)
     for egg in find_eggifo(condadir):
         metadata = process_egg(egg)
@@ -82,12 +82,13 @@ def copy_to_condadir(condadir, condafile, wheel_dir, tmp_dir):
         subprocess.run(["zip", "-r", egg_file, "."], cwd=egg_dir)
         subprocess.run(["wheel", "convert", "-d", os.path.join(os.getcwd(), wheel_dir), egg_file])
 
-def copy_to_wheeldir(condafile, wheel_dir):
+
+def copy_to_wheeldir(condafile, wheel_dir, platform):
     if not hasattr(tempfile, 'TemporaryDirectory'):
         try:
             tmp = tempfile.mkdtemp()
             condadir = os.path.join(tmp, 'conda')
-            copy_to_condadir(condadir, condafile, wheel_dir, tmp)
+            copy_to_condadir(condadir, condafile, wheel_dir, tmp, platform)
         except Exception:
             raise
         finally:
@@ -95,7 +96,7 @@ def copy_to_wheeldir(condafile, wheel_dir):
     else:
         with tempfile.TemporaryDirectory() as tmp:
             condadir = os.path.join(tmp, 'conda')
-            copy_to_condadir(condadir, condafile, wheel_dir, tmp)
+            copy_to_condadir(condadir, condafile, wheel_dir, tmp, platform)
 
 
 def fix_cpver(wheel_dir):
@@ -108,6 +109,7 @@ def fix_cpver(wheel_dir):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--wheel-dir', '-w', default=os.getcwd())
+    parser.add_argument('--platform', '-p', default="")
     parser.add_argument('--debug', action="store_true")
     parser.add_argument('--dll-files', '-d', default=None)
     parser.add_argument('--sub-path', '-s', default=None)
@@ -119,7 +121,7 @@ def main():
         logging.basicConfig(level=logging.DEBUG)
 
     for condafile in condafiles:
-        copy_to_wheeldir(condafile, args.wheel_dir)
+        copy_to_wheeldir(condafile, args.wheel_dir, args.platform)
     # fix_cpver(args.wheel_dir)
     # if args.dll_files is not None and args.sub_path is not None:
     #     add_dlls(glob(args.dll_files), args.wheel_dir, args.sub_path)
