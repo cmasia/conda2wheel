@@ -19,7 +19,7 @@ def _read(filename):
 
 requires = [
     "distlib",
-    "wheel",
+    "wheel>=0.30.0",
     "delocate",
 ]
 

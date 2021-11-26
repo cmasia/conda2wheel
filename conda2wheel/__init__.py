@@ -6,7 +6,6 @@ import sys
 import tarfile
 import tempfile
 import logging
-from wheel.egg2wheel import egg2wheel, egg_info_re
 from glob import glob
 from distlib.metadata import Metadata
 from distutils.archive_util import make_archive
@@ -77,8 +76,11 @@ def copy_to_condadir(condadir, condafile, wheel_dir, tmp_dir):
         copy_toplevels(egg, egg_dir)
         egg_info = os.path.join(egg_dir, "EGG-INFO")
         metadata.write(egg_info, legacy=True)
-        egg2wheel(egg_dir, os.path.join(os.getcwd(), wheel_dir))
 
+        egg_file = egg_dir.replace(".egg-info", ".egg")
+        import subprocess
+        subprocess.run(["zip", "-r", egg_file, "."], cwd=egg_dir)
+        subprocess.run(["wheel", "convert", "-d", os.path.join(os.getcwd(), wheel_dir), egg_file])
 
 def copy_to_wheeldir(condafile, wheel_dir):
     if not hasattr(tempfile, 'TemporaryDirectory'):
